@@ -463,6 +463,11 @@
                 transform: scale(1);
             }
         }
+        .footer-credits {
+            position: absolute; bottom: 5px; width: 100%; text-align: center;
+            font-size: 0.55rem; color: #ffa500;
+            letter-spacing: 0.15em; opacity: 0.6; z-index: 30; pointer-events: none; 
+        }
     </style>
 </head>
 <body class="bg-white dark:bg-gray-900 min-h-screen">
@@ -761,6 +766,9 @@
                     <img src="" class="icon-img" alt="9">
                 </div>
             </button>
+        </div>
+        <div class="footer-credits">
+            Mascot Sudoku ©2026 Grafittiii
         </div>
     </div>
 
@@ -5807,6 +5815,18 @@
         } catch (error) {
             console.error('🚨 Error during initialization:', error);
         }
+ // 阻止右鍵選單
+document.oncontextmenu = () => false;
+
+// 阻止 F12 和常見的開發者工具快捷鍵
+document.onkeydown = (e) => {
+    if (e.keyCode === 123 || 
+        (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67))) {
+        return false;
+    }
+};
+        
+console.log("%c停！別看我的原始碼，快去玩吧！", "color: blue; font-size: 30px; font-weight: bold;");
     </script>
 </body>
 </html>
