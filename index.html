@@ -42,42 +42,57 @@
     <style>
         body { 
             font-family: serif;
-            background-image: url('https://i.urusai.cc/h26gy.jpg');
+            background-image: url('https://i.urusai.cc/dbzIX.webp');
             background-size: cover;
             background-position: center center;
             background-repeat: no-repeat;
-            background-attachment: scroll;
-            min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
+            background-attachment: fixed;
+            height: 100dvh; 
+            width: 100vw;
+            overflow: hidden;
             -webkit-user-select: none;  /* Safari */
             -moz-user-select: none;     /* Firefox */
             -ms-user-select: none;      /* IE10+/Edge */
             user-select: none;          /* 標準語法 */
         }
         .dark body {
-            background-image: url('https://i.urusai.cc/PjGT3.jpg');
+            background-image: url('https://i.urusai.cc/lWEAM.webp');
         }
         
         /* Responsive background adjustments */
-        @media screen and (max-width: 768px) {
+        @media screen and (min-width: 431px) and (max-width: 768px) {
             body {
+                background-image: url('https://i.urusai.cc/1gZMV.webp');
                 background-size: cover;
                 background-position: center center;
             }
         }
         
-        @media screen and (orientation: landscape) and (max-height: 90vh) {
+        @media screen and (min-width: 800px) and (min-height: 1100px) {
             body {
+                background-image: url('https://i.urusai.cc/1gZMV.webp');
                 background-size: cover;
                 background-position: center center;
             }
         }
-        
-        /* For very wide screens, ensure background covers properly */
-        @media screen and (min-width: 1200px) {
-            body {
+        @media screen and (min-width: 480px) and (max-width: 768px) {
+            .dark body {
+                background-image: url('https://i.urusai.cc/582Rq.webp');
                 background-size: cover;
                 background-position: center center;
             }
+        }
+
+        @media screen and (orientation: landscape) and (min-width: 769px) {
+            body {
+                background-image: url('https://i.urusai.cc/IIoda.webp');
+                background-size: cover;
+                background-position: center center;
+            }
+        .dark body {
+            background-image: url('https://i.urusai.cc/9ChUu.webp');
+            }
+
         }
 
 .body-no-scroll {
@@ -670,7 +685,7 @@ img, button, .sudoku-cell {
 
     <!-- Difficulty Selection Modal -->
     <div id="difficultyModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-hidden">
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full mx-4 border-2 border-orange-500 dark:border-orange-400">
+        <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-lg shadow-lg max-w-sm w-full mx-4 border-2 border-orange-500 dark:border-orange-400">
             <!-- Main Title -->
             <div class="text-center mb-4">
                 <h1 class="text-3xl font-bold text-primary dark:text-orange-400 mb-2">Mascot Sudoku</h1>
@@ -956,8 +971,8 @@ img, button, .sudoku-cell {
                     devtools.open = true;
                     console.clear();
                     console.log('%c🛡️ MASCOT SUDOKU - PROTECTED CONTENT', 'color: #E39F0E; font-size: 20px; font-weight: bold;');
-                    console.log('%c⚠️ This application is protected by copyright.', 'color: red; font-size: 14px;');
-                    console.log('%c📧 Contact: Available on Poe platform', 'color: blue; font-size: 12px;');
+                    console.log('%c⚠️ Disclaimer: Unofficial Fan-Made Project', 'color: red; font-size: 14px;');
+                    console.log('%c📧 Contact: IG@grafittii_uru', 'color: blue; font-size: 12px;');
                 }
             } else {
                 devtools.open = false;
