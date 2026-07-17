@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mascot Sudoku Game</title>
-    
+    <link href="https://fonts.googleapis.com/css2?family=Caveat&family=Comic+Neue&family=Patrick+Hand&family=Sniglet&display=swap" rel="stylesheet">
     <!-- Preload critical images for instant loading -->
     <link rel="preload" as="image" href="https://pfst.cf2.poecdn.net/base/image/d15e7d71c13402902613cf09f1664c346909ef8b58c67093e6634165222aed89?w=100&h=100">
     <link rel="preload" as="image" href="https://pfst.cf2.poecdn.net/base/image/3b987f68974e1a32a8ca39ffeb729611c9b054e8eb14740605c6d2f78a5b1e92?w=100&h=100">
@@ -33,7 +33,10 @@
                         gridline: '#ffa500'
                     },
                     fontFamily: {
-                        'one stroke': ['one stroke']
+                        'caveat': ['Caveat', 'cursive'],
+                        'comic': ['Comic Neue', 'cursive'],
+                        'patrick': ['Patrick Hand', 'cursive'],
+                        'sniglet': ['Sniglet', 'cursive'],
                     }
                 }
             }
@@ -717,12 +720,19 @@ img, button, .sudoku-cell {
             </div>
 
 
-            <!-- Theme Toggle (Main Menu) -->
-            <div class="flex justify-center mb-4">
-                <button id="mainThemeToggle" onclick="toggleTheme()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-300 dark:border-gray-600" title="Toggle Dark/Light Mode">
-                    <span id="mainThemeIcon">🌙</span> 
-                </button>
-            </div>
+<!-- 功能切換列 (Theme Toggle & Font Toggle) -->
+<div class="flex justify-center items-center gap-3 mb-4">
+    
+    <!-- Theme Toggle -->
+    <button id="mainThemeToggle" onclick="toggleTheme()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-300 dark:border-gray-600" title="Toggle Dark/Light Mode">
+        <span id="mainThemeIcon">🌙</span> 
+    </button>
+
+    <!-- Font Toggle -->
+    <button id="mainFontToggle" onclick="toggleFont()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-300 dark:border-gray-600" title="Switch Font Style">
+        <span id="mainFontIcon">🔤</span>
+    </button>
+</div>
             
             <!-- Game Mode Buttons -->
             <div class="flex flex-col space-y-3 mb-4">
@@ -6023,6 +6033,37 @@ function closeModal(modalId) {
         }
     }
 }
+
+
+function toggleFont() {
+    const body = document.body;
+    const fontFamilies = ['font-caveat', 'font-comic', 'font-patrick', 'font-sniglet'];
+    
+    // 取得當前設定，如果是第一次則設為 0
+    let currentFontIndex = fontFamilies.findIndex(f => body.classList.contains(f));
+    if (currentFontIndex === -1) currentFontIndex = 0;
+    
+    // 移除當前並加入下一個
+    body.classList.remove(...fontFamilies);
+    currentFontIndex = (currentFontIndex + 1) % fontFamilies.length;
+    body.classList.add(fontFamilies[currentFontIndex]);
+    
+    // 播放音效
+    if (typeof playClickSound === 'function') playClickSound();
+
+// 視覺回饋
+    const icon = document.getElementById('mainFontIcon');
+    if(icon) {
+        icon.innerText = "✨";
+        setTimeout(() => { icon.innerText = "🔤"; }, 1000);
+    }
+}
+
+// 初始化邏輯仍然可以留在 DOMContentLoaded 裡面
+document.addEventListener('DOMContentLoaded', () => {
+    // 你的其他初始化代碼...
+});
+
 console.log("%c停！別看我的原始碼，快去玩吧！", "color: blue; font-size: 30px; font-weight: bold;");
     </script>
 </body>
