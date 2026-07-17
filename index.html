@@ -50,6 +50,10 @@
             height: 100dvh; 
             width: 100vw;
             overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
             -webkit-user-select: none;  /* Safari */
             -moz-user-select: none;     /* Firefox */
             -ms-user-select: none;      /* IE10+/Edge */
@@ -590,32 +594,52 @@ img, button, .sudoku-cell {
     background-color: #ea580c; /* 滑鼠懸停變深色 (orange-600) */
 }
 
-/* 1. 只有當遊戲主頁面被顯示（沒有 .hidden）時，才去約束棋盤的寬高比例 */
-        #gameContainer:not(.hidden) #sudokuGrid {
-            width: min(95vw, 48vh) !important;
-            height: min(95vw, 48vh) !important;
-            aspect-ratio: 1 / 1 !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-        }
+/* 1. 遊戲主容器：負責控制整體最大尺寸，防止在 iPad 上過大 */
+#gameContainer:not(.hidden) {
+    width: min(95vw, 65vh) !important; /* 寬度由螢幕寬高動態決定 */
+    max-width: 600px !important; /* 解除原本 max-w-md 的死板限制 */
+    margin: 0 auto !important;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center; /* 內部元素上下置中 */
+}
 
-        /* 2. 格子與筆記等比例縮放 */
-        #gameContainer:not(.hidden) .sudoku-cell {
-            aspect-ratio: 1 / 1 !important;
-            font-size: clamp(0.9rem, 2.5vh, 1.5rem) !important;
-        }
+/* 2. 棋盤：自動填滿容器寬度，並靠 aspect-ratio 撐出完美正方形 */
+#gameContainer:not(.hidden) #sudokuGrid {
+    width: 100% !important;
+    height: auto !important; /* 讓高度自然跟隨比例 */
+    aspect-ratio: 1 / 1 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
 
-        #gameContainer:not(.hidden) .sudoku-cell .grid {
-            font-size: clamp(0.5rem, 1.1vh, 0.75rem) !important;
-        }
+/* 3. 格子與筆記等比例縮放 (保留你原本的設定) */
+#gameContainer:not(.hidden) .sudoku-cell {
+    aspect-ratio: 1 / 1 !important;
+    font-size: clamp(0.9rem, 2.5vh, 1.5rem) !important;
+}
 
-        /* 3. 只有在進入遊戲頁面時（沒有 .hidden），才給予彈性容器高度 */
-        #gameContainer:not(.hidden) {
-            max-height: 95vh; 
-            display: flex !important;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+#gameContainer:not(.hidden) .sudoku-cell .grid {
+    font-size: clamp(0.5rem, 1.1vh, 0.75rem) !important;
+}
+
+@keyframes breathGlow {
+  0% {
+    box-shadow: 0 0 0 1px rgba(var(--primary-rgb), 0.3);
+  }
+  50% {
+    box-shadow: 0 0 4px 2px rgba(var(--primary-rgb), 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 1px rgba(var(--primary-rgb), 0.3);
+  }
+}
+
+.animate-breath {
+  /* Infinitely loops a soft 3-second breathing pulse */
+  animation: breathGlow 3s ease-in-out infinite; 
+}
+
     </style>
 </head>
 <body class="bg-white dark:bg-gray-900 min-h-screen">
@@ -693,29 +717,28 @@ img, button, .sudoku-cell {
             </div>
 
 
-            
             <!-- Theme Toggle (Main Menu) -->
             <div class="flex justify-center mb-4">
                 <button id="mainThemeToggle" onclick="toggleTheme()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-300 dark:border-gray-600" title="Toggle Dark/Light Mode">
-                    <span id="mainThemeIcon">🌙</span> <span class="ml-1">Theme</span>
+                    <span id="mainThemeIcon">🌙</span> 
                 </button>
             </div>
             
             <!-- Game Mode Buttons -->
             <div class="flex flex-col space-y-3 mb-4">
-                <button onclick="startGame('trial')" class="px-6 py-3 bg-green-500 dark:bg-green-600 text-white rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-colors shadow-md">
+                <button id="four" onclick="startGame('trial')" class="px-6 py-3 bg-green-500 dark:bg-green-600 text-white rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-colors shadow-md">
                     🎯 4x4 Trial Mode
                 </button>
-                <button onclick="startGame('six')" class="px-6 py-3 bg-primary dark:bg-orange-700 text-white rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-colors shadow-md">
+                <button id="six" onclick="startGame('six')" class="px-6 py-3 bg-primary dark:bg-orange-700 text-white rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-colors shadow-md">
                     🔥 6x6 Mode
                 </button>
-                <button onclick="startGame('easy')" class="px-6 py-3 bg-red-600 dark:bg-red-500 text-white rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-colors shadow-md">
+                <button id="nine" onclick="startGame('easy')" class="px-6 py-3 bg-red-600 dark:bg-red-500 text-white rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-colors shadow-md">
                     🌟 9x9 Mode
                 </button>
             </div>
             
             <!-- Reward Section -->
-            <div class="border-t border-gray-200 dark:border-gray-600 pt-4">
+
                 <!-- Explanation Text -->
                 <div class="text-center mb-3">
                     <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -733,7 +756,7 @@ img, button, .sudoku-cell {
                 
                 <!-- Feedback Button -->
                 <div class="flex justify-center mt-3">
-                    <a href="https://forms.gle/B9RgpdpPs8E5x5cC8" target="_blank" class="inline-block px-2 py-1 bg-gray-500 bg-opacity-50 text-gray-600 dark:text-gray-400 rounded text-xs hover:bg-opacity-70 transition-colors" style="font-size: 10px;">
+                    <a href="https://forms.gle/B9RgpdpPs8E5x5cC8" target="_blank" class="inline-block px-2 py-1 bg-gray-500 bg-opacity-30 text-gray-600 dark:text-gray-400 rounded text-xs hover:bg-opacity-70 transition-colors" style="font-size: 10px;">
                         Feedback
                     </a>
                 </div>
@@ -755,10 +778,10 @@ img, button, .sudoku-cell {
             <div id="gameEndContent" class="text-center">
             </div>
             <div class="flex flex-col space-y-3 mt-6">
-                <button onclick="newGame()" class="px-6 py-3 bg-primary text-white rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-colors">
+                <button onclick="newGame()" class="px-6 py-3 bg-gradient-to-r from-gridline to-yellow-400 text-white rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-all shadow-[0_0_15px_3px_rgba(234,179,8,0.3)] hover:shadow-[0_0_25px_6px_rgba(234,179,8,0.5)]">
                     New Game
                 </button>
-                <button onclick="restartGame()" class="px-6 py-3 bg-gridline text-white rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-colors">
+                <button onclick="restartGame()" class="px-6 py-3 bg-gradient-to-r from-yellow-600 to-primary text-white rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-colors">
                     Restart
                 </button>
             </div>
@@ -810,31 +833,29 @@ img, button, .sudoku-cell {
         </div>
     </div>
 
-    <!-- Top Spacing -->
-    <div class="h-8"></div>
 
     <!-- Main Game Container -->
-    <div id="gameContainer" class="max-w-md mx-auto p-4 hidden overflow-hidden">
-        <!-- Header -->
-        <div class="flex items-center justify-between mb-3 relative min-h-[44px]">
-            <!-- Left: Back Button -->
-            <button onclick="showDifficultyModal()" class="text-primary text-2xl min-w-[44px] min-h-[44px] flex items-center justify-center -ml-2 touch-manipulation">←</button>
-            
-            <!-- Center: Timer and Controls -->
-            <div class="flex items-center space-x-2 sm:space-x-3">
-                <button id="themeToggle" onclick="toggleTheme()" class="bg-primary text-white px-3 py-2 rounded text-sm hover:bg-opacity-90 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation" title="Toggle Dark/Light Mode">
-                    <span id="themeIcon">🌙</span>
-                </button>
-                <div id="timer" class="text-primary text-lg sm:text-xl font-bold min-w-[50px] text-center">00:00</div>
-                <button id="pauseBtn" onclick="togglePause()" class="bg-primary text-white px-3 py-2 rounded text-sm min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation">⏸</button>
-            </div>
-            
-            <!-- Right: Lives -->
-            <div class="flex items-center space-x-1 min-w-[44px] justify-end">
-                <span class="text-primary text-lg">❤️</span>
-                <span id="lives" class="text-primary font-bold text-lg">3</span>
-            </div>
-        </div>
+    <div id="gameContainer" class="mx-auto p-4 hidden">
+<!-- Header -->
+<div class="relative flex items-center justify-between w-full mb-3 min-h-[44px]">
+    <!-- Left: Back Button -->
+    <button onclick="showDifficultyModal()" class="text-primary text-2xl min-w-[44px] min-h-[44px] flex items-center justify-center -ml-2 touch-manipulation z-10">←</button>
+    
+    <!-- Center: Timer and Controls (改為絕對置中) -->
+    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center space-x-2 sm:space-x-3 z-10">
+        <button id="themeToggle" onclick="toggleTheme()" class="bg-primary text-white px-3 py-2 rounded text-sm hover:bg-opacity-90 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation" title="Toggle Dark/Light Mode">
+            <span id="themeIcon">🌙</span>
+        </button>
+        <div id="timer" class="text-primary text-lg sm:text-xl font-bold min-w-[60px] text-center">00:00</div>
+        <button id="pauseBtn" onclick="togglePause()" class="bg-primary text-white px-3 py-2 rounded text-sm min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation">⏸</button>
+    </div>
+    
+    <!-- Right: Lives -->
+    <div class="flex items-center space-x-1 min-w-[44px] justify-end z-10">
+        <span class="text-primary text-lg">❤️</span>
+        <span id="lives" class="text-primary font-bold text-lg">3</span>
+    </div>
+</div>
 
         <!-- Sudoku Grid -->
         <div id="sudokuGrid" class="grid grid-cols-9 gap-0 border-3 border-gridline rounded-lg overflow-hidden mb-2 bg-white dark:bg-gray-800">
@@ -922,6 +943,7 @@ img, button, .sudoku-cell {
                 </div>
             </button>
         </div>
+<div class="h-8"></div>
         <div class="footer-credits">
             <span>Fan Art ONLY</span>
             <span class="footer-divider">|</span>
@@ -1314,7 +1336,7 @@ img, button, .sudoku-cell {
                             osc.stop(audioContext.currentTime + 0.8);
                         }, index * 200);
                     });
-                } else if (difficulty === 'easy') {
+                } else if (difficulty === 'six') {
                     // Triumphant fanfare for easy mode
                     const fanfareNotes = [523, 659, 784, 1047]; // C-E-G-C octave
                     fanfareNotes.forEach((freq, index) => {
@@ -1334,8 +1356,8 @@ img, button, .sudoku-cell {
                             osc.stop(audioContext.currentTime + 1.0);
                         }, index * 150);
                     });
-                } else if (difficulty === 'hard') {
-                    // Epic victory fanfare for hard mode
+                } else if (difficulty === 'easy') {
+                    // Epic victory fanfare for 9x9 mode
                     const epicNotes = [
                         [523, 659, 784], // C major chord
                         [587, 740, 880], // D major chord
@@ -2235,8 +2257,8 @@ function isValidMoveForSize(board, row, col, num, size) {
         function logPuzzlePoolStatus() {
             console.log('📊 === PUZZLE POOL STATUS ===');
             console.log(`  Trial (4x4): ${puzzlePool.trial.length}/${puzzlePool.targetPoolSize}`);
+
             console.log(`  Easy (9x9):  ${puzzlePool.easy.length}/${puzzlePool.targetPoolSize}`);
-            console.log(`  Hard (9x9):  ${puzzlePool.hard.length}/${puzzlePool.targetPoolSize}`);
             console.log(`  Generating:  ${puzzlePool.generating}`);
             console.log('============================');
         }
@@ -3604,8 +3626,8 @@ function findHiddenSingles() {
                         </div>
                         
                         <div class="mt-3 text-xs text-primary">
-                            <p>Victory Count: 6x6 ${victoryStats.six || 0} | 9x9 ${victoryStats.easy || 0}</p>
-                            <p>Total 9x9 Wins: ${total9x9Wins}/10 for gift</p>
+                            <p>Victory Count: 6x6 [${victoryStats.six || 0}] || 9x9 [${victoryStats.easy || 0}]</p>
+                            <p>Total: ${total9x9Wins}/10 for gift</p>
                         </div>
                         ${giftMessage}
                     </div>
@@ -3655,11 +3677,11 @@ if (modalContentContainer) {
             
             // Set lives and hints based on difficulty
             if (difficulty === 'easy') {
-                gameState.lives = 5;  // Easy mode gets more lives
-                gameState.hints = 5;  // Easy mode gets more hints
+                gameState.lives = 5;  // 9x9 mode gets more lives
+                gameState.hints = 5;  // 9x9 mode gets more hints
             } else {
-                gameState.lives = 3;  // Trial and Hard mode
-                gameState.hints = 2;  // Trial and Hard mode
+                gameState.lives = 3;   
+                gameState.hints = 2;  
             }
             gameState.isPaused = false;
             gameState.notesMode = false;
@@ -3789,11 +3811,11 @@ if (modalContentContainer) {
             
             // Reset lives and hints based on current difficulty
             if (gameState.difficulty === 'easy') {
-                gameState.lives = 5;  // Easy mode gets more lives
-                gameState.hints = 5;  // Easy mode gets more hints
+                gameState.lives = 5;  // 9x9 gets more lives
+                gameState.hints = 5;  // 9x9 mode gets more hints
             } else {
-                gameState.lives = 3;  // Trial and Hard mode
-                gameState.hints = 2;  // Trial and Hard mode
+                gameState.lives = 3;  
+                gameState.hints = 2;  
             }
             gameState.isPaused = false;
             gameState.notesMode = false;
