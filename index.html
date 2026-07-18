@@ -42,6 +42,16 @@
             }
         }
     </script>
+<!-- 針對電商/遊戲商業環境優化，拒絕瀏覽器自動識別電話或信箱，防止格式跑版 -->
+<meta name="format-detection" content="telephone=no, email=no, adress=no">
+
+<!-- 針對 UC 瀏覽器與 QQ 瀏覽器（部分 Android 手機內建核心）強制全螢幕與應用模式 -->
+<meta name="fullscreen" content="yes">
+<meta name="browsermode" content="application">
+
+<!-- 針對舊版 iOS Safari 頂部狀態列與 Web App 模式優化 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         body { 
             font-family: serif;
@@ -50,13 +60,18 @@
             background-position: center center;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            height: 100dvh; 
+            height: 100vh; height: 100dvh; 
             width: 100vw;
             overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+    overscroll-behavior-y: contain;
             -webkit-user-select: none;  /* Safari */
             -moz-user-select: none;     /* Firefox */
             -ms-user-select: none;      /* IE10+/Edge */
@@ -170,12 +185,30 @@ outline: 3px solid #00d2ff !important; /* 使用 outline 代替 border，可完�
         .number-btn {
             min-width: 0; /* Allow buttons to shrink below content width */
             max-width: 100%; /* Prevent overflow */
-            
         }
+
 img, button, .sudoku-cell {
     -webkit-user-drag: none;    /* Webkit 核心瀏覽器 (Chrome/Safari) */
     user-drag: none;
     -webkit-touch-callout: none; /* 禁用 iOS 長按圖片彈出選單 */
+}
+
+/* 徹底根除 iOS Safari 點擊按鈕或格子時，會出現的「灰黑色反白陰影」 */
+button, a, .sudoku-cell {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+/* 修復 Android Chrome 預設對長按文字/圖片時會彈出放大鏡或文字選擇視窗 */
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* 允許彈出視窗（如結束彈窗）內部可以正常滾動，但不影響外層 */
+.overflow-y-auto {
+    -webkit-overflow-scrolling: touch; /* 讓 iOS 滾動擁有平滑的硬體加速慣性 */
 }
         .icon-container {
             position: relative;
@@ -568,7 +601,7 @@ img, button, .sudoku-cell {
 
 @media (max-width: 320px) {
     .footer-credits {
-        gap: 1px;
+        gap: 1px; padding-bottom: env(safe-area-inset-bottom);
     }
 }
 
@@ -595,6 +628,16 @@ img, button, .sudoku-cell {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: #ea580c; /* 滑鼠懸停變深色 (orange-600) */
+}
+
+body, #gameContainer {
+display: flex;
+  flex-direction: column;
+  justify-content: center; /* 垂直置中 */
+  align-items: center;     /* 水平置中 */
+  height: 100dvh;
+  /* 確保內容不會因為瀏覽器工具列而被壓縮變形 */
+  min-height: -webkit-fill-available;
 }
 
 /* 1. 遊戲主容器：負責控制整體最大尺寸，防止在 iPad 上過大 */
@@ -643,9 +686,21 @@ img, button, .sudoku-cell {
   animation: breathGlow 3s ease-in-out infinite; 
 }
 
+/* 當手機被橫放，且螢幕高度小於 500px 時，顯示強制轉向提示（可選用） */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+    #orientation-blocker {
+        display: flex !important;
+    }
+}
     </style>
 </head>
 <body class="bg-white dark:bg-gray-900 min-h-screen">
+<div id="orientation-blocker" class="fixed inset-0 bg-gray-900 z-[99999] hidden flex-col items-center justify-center text-white p-6 text-center">
+    <div class="text-4xl mb-4">🔄</div>
+    <p class="font-bold text-lg text-orange-400">為了最佳遊戲體驗</p>
+    <p class="text-sm text-gray-400 mt-1">請將手機轉回直式畫面或鎖定螢幕方向</p>
+</div>
+
     <!-- Dark mode support -->
     <script>
         // Theme management (session-only, no localStorage)
@@ -1107,6 +1162,31 @@ img, button, .sudoku-cell {
             return false;
         }
         
+// =============================================================================
+// 🔊 全局行動端音效解鎖（解決 iOS 靜音或首次點擊無聲問題）
+// =============================================================================
+function unlockMobileAudio() {
+    if (!audioContext) return;
+    
+    const unlockEvents = ['touchstart', 'click', 'keydown'];
+    const unlock = () => {
+        if (audioContext && audioContext.state === 'suspended') {
+            audioContext.resume().then(() => {
+                // 成功解鎖後，移除監聽器，避免浪費效能
+                unlockEvents.forEach(event => document.removeEventListener(event, unlock));
+                console.log('📱 商業音效核心：行動端環境已成功解鎖音訊！');
+            });
+        } else {
+            unlockEvents.forEach(event => document.removeEventListener(event, unlock));
+        }
+    };
+    
+    unlockEvents.forEach(event => document.addEventListener(event, unlock, { passive: true }));
+}
+
+// 建議在你的 window.onload 或 startGame 觸發時呼叫此函數
+// unlockMobileAudio();
+
         // =============================================================================
         // 🎮 GAME STATE - MAIN APPLICATION CODE
         // =============================================================================
@@ -6059,9 +6139,37 @@ function toggleFont() {
     }
 }
 
-// 初始化邏輯仍然可以留在 DOMContentLoaded 裡面
+=============================================================================
+// 📱 商業級行動端瀏覽器點擊與手勢優化
+// =============================================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // 你的其他初始化代碼...
+    // 1. 阻止雙指縮放與雙擊縮放（iOS Safari 商業必備）
+    document.addEventListener('touchstart', (e) => {
+        if (e.touches.length > 1) {
+            e.preventDefault(); // 禁用雙指縮放
+        }
+    }, { passive: false });
+
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (e) => {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+            e.preventDefault(); // 禁用 300ms 內的雙擊縮放行為
+        }
+        lastTouchEnd = now;
+    }, false);
+
+    // 2. 自動聚焦與防止彈出鍵盤
+    // 當玩家點擊數獨格子時，確保不會錯誤觸發手機虛擬鍵盤彈出
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('focus', (e) => {
+            // 如果不是必要的輸入框，防止手機軟鍵盤頂起畫面
+            if(input.getAttribute('readonly')) {
+                input.blur();
+            }
+        });
+    });
 });
 
 console.log("%c停！別看我的原始碼，快去玩吧！", "color: blue; font-size: 30px; font-weight: bold;");
