@@ -36,6 +36,7 @@
     <script>
         tailwind.config = {
             theme: {
+            darkMode: 'class',
                 extend: {
                     colors: {
                         primary: '#e39f0e',
@@ -53,29 +54,31 @@
         }
     </script>
     <style>
-        body { 
-            font-family: serif;
-            background-image: url('https://i.urusai.cc/dbzIX.webp');
-            background-size: cover;
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            height: 100vh; height: 100dvh; 
-            width: 100vw;
-            overflow: hidden;
+body { 
+    font-family: serif;
+    background-image: url('https://i.urusai.cc/dbzIX.webp');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    height: 100vh; 
+    height: 100dvh; 
+    width: 100vw;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    /* 左右保留安全區，上下交給容器以防干擾 Flex 置中 */
     padding-left: env(safe-area-inset-left, 0px);
     padding-right: env(safe-area-inset-right, 0px);
-            -webkit-user-select: none;  /* Safari */
-            -moz-user-select: none;     /* Firefox */
-            -ms-user-select: none;      /* IE10+/Edge */
-            user-select: none;          /* 標準語法 */
-        }
+    padding-top: 0;
+    padding-bottom: 0;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
         .dark body {
             background-image: url('https://i.urusai.cc/lWEAM.webp');
         }
@@ -175,8 +178,8 @@ outline: 3px solid #00d2ff !important; /* 使用 outline 代替 border，可完�
         .icon-img, .grid-icon {
             width: 80%;     /* 佔滿格子的 85% */
             height: 80%;    /* 佔滿格子的 85% */
-            max-width: 45px; /* 加上上限，避免在大螢幕上過度拉伸 */
-            max-height: 45px;
+            max-width: 100%; 
+            max-height: 100%;
             border-radius: 8%; /* 使用百分比圓角，看起來更自然 */
             object-fit: cover;
             margin: auto;   /* 確保圖片在格子內居中 */
@@ -184,18 +187,19 @@ outline: 3px solid #00d2ff !important; /* 使用 outline 代替 border，可完�
         }
         
         /* Larger sizes for 4x4 trial mode */
-        .icon-img-large {
-            width: 45px;
-            height: 45px;
-            border-radius: 8px;
-            object-fit: cover;
-        }
-        .grid-icon-large {
-            width: 55px;
-            height: 55px;
-            border-radius: 12px;
-            object-fit: cover;
-        }
+.icon-img-large, .grid-icon-large {
+    /* 
+       因為 4x4 的格子本來就比 9x9 大，當我們使用百分比（例如 88%）時，
+       瀏覽器就會自動依據大格子去放大圖片，再也不需要手動計算 px 了！
+       這裡設定 88% 稍微調大一點點，讓 4x4 的視覺張力更好。
+    */
+    width: 88%;  
+    height: 88%;   
+    border-radius: 10%; /* 大圖配上稍微多一點點的圓角，視覺更精緻 */
+    object-fit: cover;
+    margin: auto;       /* 確保在大格子裡完美居中 */
+    display: block;
+}
         
         /* Number button container improvements */
         .number-btn {
@@ -631,12 +635,15 @@ img, button, .sudoku-cell {
 
 /* 1. 遊戲主容器：負責控制整體最大尺寸，防止在 iPad 上過大 */
 #gameContainer:not(.hidden) {
-    width: min(95vw, 65vh) !important; /* 寬度由螢幕寬高動態決定 */
-    max-width: 600px !important; /* 解除原本 max-w-md 的死板限制 */
-    margin: 0 auto !important;
+    width: min(95vw, calc(100dvh - 220px)) !important; /* 寬度由螢幕寬高動態決定 */
+    max-width: 480px !important;
+    margin: auto !important;
     display: flex !important;
     flex-direction: column;
     justify-content: center; /* 內部元素上下置中 */
+    padding-top: env(safe-area-inset-top, 10px);
+    padding-bottom: env(safe-area-inset-bottom, 10px);
+    box-sizing: border-box;
 }
 
 /* 2. 棋盤：自動填滿容器寬度，並靠 aspect-ratio 撐出完美正方形 */
@@ -681,6 +688,32 @@ img, button, .sudoku-cell {
         display: flex !important;
     }
 }
+
+/* ==========================================================================
+   針對 iPad / 平板等中型螢幕的專屬優化 (螢幕寬度 768px 以上)
+   ========================================================================== */
+@media (min-width: 768px) {
+    
+    /* 1. 解放棋盤容器：讓 iPad 上的棋盤能按比例放大 */
+    #gameContainer:not(.hidden) {
+        /* 將原本限制的 480px 大幅放寬到 640px，讓大螢幕不再縮在一小塊 */
+        max-width: 640px !important; 
+        /* 稍微調整寬度比例與垂直防線，確保橫屏時依舊不裁切 */
+        width: min(90vw, calc(100dvh - 250px)) !important; 
+    }
+
+    /* 2. 同步放大棋盤字體：避免「格子變大、數字卻小如螞蟻」的尷尬情況 */
+    #gameContainer:not(.hidden) .sudoku-cell {
+        /* 提升字體大小的上下限，完美適應大格子 */
+        font-size: clamp(1.3rem, 3vh, 3rem) !important;
+    }
+
+    /* 3. 同步放大筆記（候選數）字體 */
+    #gameContainer:not(.hidden) .sudoku-cell .grid {
+        font-size: clamp(0.6rem, 1.2vh, 0.9rem) !important;
+    }
+
+
     </style>
 </head>
 <body class="bg-white dark:bg-gray-900 min-h-screen">
@@ -779,77 +812,81 @@ function unlockMobileAudio() {
         });
     </script>
 
-    <!-- Difficulty Selection Modal -->
-    <div id="difficultyModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-hidden">
-        <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-lg shadow-lg max-w-sm w-full mx-4 border-2 border-orange-500 dark:border-orange-400">
-            <!-- Main Title -->
-            <div class="text-center mb-4">
-                <h1 class="text-3xl font-bold text-primary dark:text-orange-400 mb-2">Mascot Sudoku</h1>
-                <h2 class="text-lg font-semibold text-primary dark:text-orange-300">Choose Difficulty</h2>
-            </div>
-
-
-<!-- 功能切換列 (Theme Toggle & Font Toggle) -->
-<div class="flex justify-center items-center gap-3 mb-4">
+<!-- Difficulty Selection Modal -->
+<div id="difficultyModal" class="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50 overflow-hidden p-4">
     
-    <!-- Theme Toggle -->
-    <button id="mainThemeToggle" onclick="toggleTheme()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-300 dark:border-gray-600" title="Toggle Dark/Light Mode">
-        <span id="mainThemeIcon">🌙</span> 
-    </button>
+    <!-- 
+      關鍵修正：
+      加上了 flex flex-col justify-between，這會讓裡面的 5 個主要區塊
+      自動依據 3:4 的高度均勻拉開間距，徹底解決下方留白過多的奇怪排版！
+    -->
+    <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-lg shadow-lg h-[min(580px,82dvh)] aspect-[3/4] max-w-[90vw] border-2 border-orange-500 dark:border-orange-400 flex flex-col justify-between">
+        
+        <!-- 1. Main Title -->
+        <div class="text-center">
+            <h1 class="text-3xl font-bold text-primary dark:text-orange-400 mb-3">Mascot Sudoku</h1>
+            <h2 class="text-lg font-semibold text-primary dark:text-orange-300">Choose Difficulty</h2>
+        </div>
 
-    <!-- Font Toggle -->
-    <button id="mainFontToggle" onclick="toggleFont()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-300 dark:border-gray-600" title="Switch Font Style">
-        <span id="mainFontIcon">🔤</span>
-    </button>
-</div>
-            
-            <!-- Game Mode Buttons -->
-            <div class="flex flex-col space-y-3 mb-4">
-                <button id="four" onclick="startGame('trial')" class="px-6 py-3 bg-green-500 dark:bg-green-600 text-white rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-colors shadow-md">
-                    🎯 4x4 Trial Mode
-                </button>
-                <button id="six" onclick="startGame('six')" class="px-6 py-3 bg-primary dark:bg-orange-700 text-white rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-colors shadow-md">
-                    🔥 6x6 Mode
-                </button>
-                <button id="nine" onclick="startGame('easy')" class="px-6 py-3 bg-red-600 dark:bg-red-500 text-white rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-colors shadow-md">
-                    🌟 9x9 Mode
-                </button>
+        <!-- 2. 功能切換列 (Theme Toggle & Font Toggle) -->
+        <div class="flex justify-center items-center gap-3">
+            <!-- Theme Toggle -->
+            <button id="mainThemeToggle" onclick="toggleTheme()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-300 dark:border-gray-600" title="Toggle Dark/Light Mode">
+                <span id="mainThemeIcon">🌙</span> 
+            </button>
+
+            <!-- Font Toggle -->
+            <button id="mainFontToggle" onclick="toggleFont()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-300 dark:border-gray-600" title="Switch Font Style">
+                <span id="mainFontIcon">🔤</span>
+            </button>
+        </div>
+                    
+        <!-- 3. Game Mode Buttons -->
+        <div class="flex flex-col space-y-3 w-full">
+            <button id="four" onclick="startGame('trial')" class="px-6 py-3 bg-green-500 dark:bg-green-600 text-white rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-colors shadow-md">
+                🎯 4x4 Trial Mode
+            </button>
+            <button id="six" onclick="startGame('six')" class="px-6 py-3 bg-primary dark:bg-orange-700 text-white rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-colors shadow-md">
+                🔥 6x6 Mode
+            </button>
+            <button id="nine" onclick="startGame('easy')" class="px-6 py-3 bg-red-600 dark:bg-red-500 text-white rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-colors shadow-md">
+                🌟 9x9 Mode
+            </button>
+        </div>
+                    
+        <!-- 4. Reward Section & Centered Gift Button -->
+        <div>
+            <!-- Explanation Text -->
+            <div class="text-center mb-3">
+                <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                    🏆 Win 10 6x6 &amp; 9x9 mode games<br>
+                    to unlock a special mascot gift!
+                </p>
             </div>
-            
-            <!-- Reward Section -->
-
-                <!-- Explanation Text -->
-                <div class="text-center mb-3">
-                    <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                        🏆 Win 10 6x6 & 9x9 mode games<br>
-                        to unlock a special mascot gift!
-                    </p>
-                </div>
-                
-                <!-- Centered Gift Button -->
-                <div class="flex justify-center">
-                    <button id="giftButton" onclick="handleSimplifiedGiftClick()" class="px-3 py-2 text-primary dark:text-orange-400 border border-primary dark:border-orange-400 rounded-lg text-sm font-medium hover:bg-primary hover:text-white dark:hover:bg-orange-500 dark:hover:text-white transition-colors">                
-                        🎁 View Progress (0/10)
-                    </button>
-                </div>
-                
-                <!-- Feedback Button -->
-                <div class="flex justify-center mt-3">
-                    <a href="https://forms.gle/B9RgpdpPs8E5x5cC8" target="_blank" class="inline-block px-2 py-1 bg-gray-500 bg-opacity-30 text-gray-600 dark:text-gray-400 rounded text-xs hover:bg-opacity-70 transition-colors" style="font-size: 10px;">
-                        Feedback
-                    </a>
-                </div>
+                            
+            <!-- Centered Gift Button -->
+            <div class="flex justify-center">
+                <button id="giftButton" onclick="handleSimplifiedGiftClick()" class="px-3 py-2 text-primary dark:text-orange-400 border border-primary dark:border-orange-400 rounded-lg text-sm font-medium hover:bg-primary hover:text-white dark:hover:bg-orange-500 dark:hover:text-white transition-colors">🎁 View Progress (0/10)</button>
             </div>
         </div>
-        <div class="footer-credits">
+                        
+        <!-- 5. Feedback Button -->
+        <div class="flex justify-center">
+            <a href="https://forms.gle/B9RgpdpPs8E5x5cC8" target="_blank" class="inline-block px-2 py-1 bg-gray-500 bg-opacity-30 text-gray-600 dark:text-gray-400 rounded text-xs hover:bg-opacity-70 transition-colors" style="font-size: 10px;">
+                Feedback
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer Credits -->
+<div class="footer-credits">
             <span>Mascot Sudoku©2026 Grafittiii</span>
             <span class="footer-divider">|</span>
             <a href="https://www.instagram.com/grafittiii_uru/" target="_blank" class="footer-link">Instagram</a>
             <span class="footer-divider">|</span>
             <a href="https://linktr.ee/grafittiii.uru" target="_blank" class="footer-link">My Platforms</a>
         </div>
-
-    </div>
+</div>
 
     <!-- Game End Modal -->
     <div id="gameEndModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
@@ -916,23 +953,32 @@ function unlockMobileAudio() {
     <!-- Main Game Container -->
     <div id="gameContainer" class="mx-auto p-4 hidden">
 <!-- Header -->
-<div class="relative flex items-center justify-between w-full mt-3 mb-1.5 min-h-[30px]">
-    <!-- Left: Back Button -->
-    <button onclick="showDifficultyModal()" class="text-primary text-2xl min-w-[44px] min-h-[44px] flex items-center justify-center -ml-2 touch-manipulation z-10">←</button>
-    
-    <!-- Center: Timer and Controls (改為絕對置中) -->
-    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center space-x-2 sm:space-x-3 z-10">
-        <button id="themeToggle" onclick="toggleTheme()" class="bg-gray-200 dark:bg-gray-700 text-white px-3 py-2 rounded text-sm hover:bg-opacity-80 transition-colors min-w-[30px] min-h-[30px] flex items-center justify-center touch-manipulation" title="Toggle Dark/Light Mode">
-            <span id="themeIcon">🌙</span>
+<!-- 將 Header 包裹在一個具有與遊戲容器相同寬度限制的容器中 -->
+<div class="w-full flex justify-center px-2">
+    <div class="relative flex items-center justify-between w-[95vw] max-w-[480px] mt-3 mb-1.5 min-h-[44px]">
+        
+        <!-- Left: Back Button (透過 w-[95vw] 限制，它會自動對齊棋盤邊緣) -->
+        <button onclick="showDifficultyModal()" class="bg-primary text-white text-xl w-9 h-9 flex items-center justify-center rounded-lg touch-manipulation z-10 transition-transform active:scale-95">
+            ←
         </button>
-        <div id="timer" class="text-primary text-lg sm:text-xl font-bold min-w-[60px] text-center">00:00</div>
-        <button id="pauseBtn" onclick="togglePause()" class="bg-primary text-white px-3 py-2 rounded text-sm min-w-[30px] min-h-[30px] flex items-center justify-center touch-manipulation">⏸</button>
-    </div>
-    
-    <!-- Right: Lives -->
-    <div class="flex items-center space-x-1 min-w-[44px] justify-end z-10">
-        <span class="text-primary text-lg">❤️</span>
-        <span id="lives" class="text-primary font-bold text-lg">3</span>
+        
+        <!-- Center: Timer and Controls (移除所有 md: 的放大 class，讓它在平板/電腦上維持精緻的手機大小) -->
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center space-x-2.5 z-10">
+            <button id="themeToggle" onclick="toggleTheme()" class="bg-gray-200 dark:bg-gray-700 text-white px-2.5 py-1.5 rounded text-sm hover:bg-opacity-80 transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center touch-manipulation" title="Toggle Dark/Light Mode">
+                <span id="themeIcon">🌙</span>
+            </button>
+            
+            <!-- 字體固定在 text-lg，不隨螢幕放大 -->
+            <div id="timer" class="text-primary text-lg font-bold min-w-[30px] text-center tracking-wider">00:00</div>
+            
+            <button id="pauseBtn" onclick="togglePause()" class="bg-primary text-white px-2.5 py-1.5 rounded text-sm min-w-[32px] min-h-[32px] flex items-center justify-center touch-manipulation">⏸</button>
+        </div>
+        
+        <!-- Right: Lives (字體縮減，保持精緻) -->
+        <div class="flex items-center space-x-1 min-w-[44px] justify-end z-10">
+            <span class="text-primary text-lg">❤️</span>
+            <span id="lives" class="text-primary font-bold text-sm ml-0.5">3</span>
+        </div>
     </div>
 </div>
 
@@ -941,29 +987,41 @@ function unlockMobileAudio() {
             <!-- Grid cells will be populated by JavaScript -->
         </div>
 
-        <!-- Control Buttons -->
-        <div class="grid grid-cols-4 gap-3 mb-2">
-            <button onclick="undo()" class="flex flex-col items-center py-3 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors">
-                <span class="text-lg">↩️</span>
-                <span class="text-xs font-bold">Undo</span>
-            </button>
-            <button onclick="erase()" class="flex flex-col items-center py-3 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors">
-                <span class="text-lg">🧹</span>
-                <span class="text-xs font-bold">Erase</span>
-            </button>
-            <button id="notesBtn" onclick="toggleNotes()" class="flex flex-col items-center py-3 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors">
-                <span class="text-lg">✏️</span>
-                <div class="flex items-center">
-                    <span class="text-xs font-bold">Notes</span>
-                    <span id="notesStatus" class="text-xs ml-1 text-red-500 font-bold">OFF</span>
-                </div>
-            </button>
-            <button onclick="useHint()" class="flex flex-col items-center py-3 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors relative">
-                <span class="text-lg">🌟</span>
-                <span class="text-xs font-bold">Hint</span>
-                <span id="hintCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">2</span>
-            </button>
+<!-- Control Buttons -->
+<!-- 
+  - gap-3 md:gap-4: 大螢幕時按鈕之間的間距稍微拉開
+  - mb-2 md:mb-4: 底部外邊距隨螢幕放大
+-->
+<div class="grid grid-cols-4 gap-3 md:gap-4 mb-2 md:mb-4">
+    <!-- Undo Button -->
+    <button onclick="undo()" class="flex flex-col items-center py-3 md:py-4 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors">
+        <span class="text-lg sm:text-xl md:text-2xl">↩️</span>
+        <span class="text-xs md:text-sm font-bold mt-1">Undo</span>
+    </button>
+    
+    <!-- Erase Button -->
+    <button onclick="erase()" class="flex flex-col items-center py-3 md:py-4 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors">
+        <span class="text-lg sm:text-xl md:text-2xl">🧹</span>
+        <span class="text-xs md:text-sm font-bold mt-1">Erase</span>
+    </button>
+    
+    <!-- Notes Button -->
+    <button id="notesBtn" onclick="toggleNotes()" class="flex flex-col items-center py-3 md:py-4 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors">
+        <span class="text-lg sm:text-xl md:text-2xl">✏️</span>
+        <div class="flex items-center mt-1">
+            <span class="text-xs md:text-sm font-bold">Notes</span>
+            <span id="notesStatus" class="text-xs md:text-sm ml-1 text-red-500 font-bold">OFF</span>
         </div>
+    </button>
+    
+    <!-- Hint Button -->
+    <button onclick="useHint()" class="flex flex-col items-center py-3 md:py-4 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors relative">
+        <span class="text-lg sm:text-xl md:text-2xl">🌟</span>
+        <span class="text-xs md:text-sm font-bold mt-1">Hint</span>
+        <!-- 提示數量的紅點：在大螢幕上也同步等比例微調大小與字體 -->
+        <span id="hintCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs md:text-sm rounded-full w-5 h-5 md:w-6 md:h-6 flex items-center justify-center font-bold">2</span>
+    </button>
+</div>
 
         <!-- Number Input -->
         <div id="numberButtonContainer" class="flex gap-1">
@@ -1022,7 +1080,7 @@ function unlockMobileAudio() {
                 </div>
             </button>
         </div>
-<div class="h-8"></div>
+<div class="h-5"></div>
     <script>
         // =============================================================================
         // 🛡️ APP PROTECTION & ANTI-TAMPERING MEASURES
