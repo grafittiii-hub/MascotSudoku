@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mascot Sudoku Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Caveat&family=Comic+Neue&family=Patrick+Hand&family=Sniglet&display=swap" rel="stylesheet">
+<!-- 針對電商/遊戲商業環境優化，拒絕瀏覽器自動識別電話或信箱，防止格式跑版 -->
+<meta name="format-detection" content="telephone=no, email=no, adress=no">
+
+<!-- 針對 UC 瀏覽器與 QQ 瀏覽器（部分 Android 手機內建核心）強制全螢幕與應用模式 -->
+<meta name="fullscreen" content="yes">
+<meta name="browsermode" content="application">
+
+<!-- 針對舊版 iOS Safari 頂部狀態列與 Web App 模式優化 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <!-- Preload critical images for instant loading -->
     <link rel="preload" as="image" href="https://pfst.cf2.poecdn.net/base/image/d15e7d71c13402902613cf09f1664c346909ef8b58c67093e6634165222aed89?w=100&h=100">
     <link rel="preload" as="image" href="https://pfst.cf2.poecdn.net/base/image/3b987f68974e1a32a8ca39ffeb729611c9b054e8eb14740605c6d2f78a5b1e92?w=100&h=100">
@@ -42,16 +52,6 @@
             }
         }
     </script>
-<!-- 針對電商/遊戲商業環境優化，拒絕瀏覽器自動識別電話或信箱，防止格式跑版 -->
-<meta name="format-detection" content="telephone=no, email=no, adress=no">
-
-<!-- 針對 UC 瀏覽器與 QQ 瀏覽器（部分 Android 手機內建核心）強制全螢幕與應用模式 -->
-<meta name="fullscreen" content="yes">
-<meta name="browsermode" content="application">
-
-<!-- 針對舊版 iOS Safari 頂部狀態列與 Web App 模式優化 -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         body { 
             font-family: serif;
@@ -71,7 +71,6 @@
     padding-bottom: env(safe-area-inset-bottom, 0px);
     padding-left: env(safe-area-inset-left, 0px);
     padding-right: env(safe-area-inset-right, 0px);
-    overscroll-behavior-y: contain;
             -webkit-user-select: none;  /* Safari */
             -moz-user-select: none;     /* Firefox */
             -ms-user-select: none;      /* IE10+/Edge */
@@ -114,8 +113,25 @@
         .dark body {
             background-image: url('https://i.urusai.cc/9ChUu.webp');
             }
-
         }
+
+/* 徹底根除 iOS Safari 點擊按鈕或格子時，會出現的「灰黑色反白陰影」 */
+button, a, .sudoku-cell {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+/* 修復 Android Chrome 預設對長按文字/圖片時會彈出放大鏡或文字選擇視窗 */
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* 允許彈出視窗（如結束彈窗）內部可以正常滾動，但不影響外層 */
+.overflow-y-auto {
+    -webkit-overflow-scrolling: touch; /* 讓 iOS 滾動擁有平滑的硬體加速慣性 */
+}
 
 .body-no-scroll {
     overflow: hidden !important;
@@ -185,30 +201,12 @@ outline: 3px solid #00d2ff !important; /* 使用 outline 代替 border，可完�
         .number-btn {
             min-width: 0; /* Allow buttons to shrink below content width */
             max-width: 100%; /* Prevent overflow */
+            
         }
-
 img, button, .sudoku-cell {
     -webkit-user-drag: none;    /* Webkit 核心瀏覽器 (Chrome/Safari) */
     user-drag: none;
     -webkit-touch-callout: none; /* 禁用 iOS 長按圖片彈出選單 */
-}
-
-/* 徹底根除 iOS Safari 點擊按鈕或格子時，會出現的「灰黑色反白陰影」 */
-button, a, .sudoku-cell {
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
-    -webkit-tap-highlight-color: transparent !important;
-}
-
-/* 修復 Android Chrome 預設對長按文字/圖片時會彈出放大鏡或文字選擇視窗 */
-* {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-}
-
-/* 允許彈出視窗（如結束彈窗）內部可以正常滾動，但不影響外層 */
-.overflow-y-auto {
-    -webkit-overflow-scrolling: touch; /* 讓 iOS 滾動擁有平滑的硬體加速慣性 */
 }
         .icon-container {
             position: relative;
@@ -544,7 +542,7 @@ button, a, .sudoku-cell {
             }
         }
         .footer-credits {
-            bottom: 5px; width: 100%; left: 0; text-align: center; gap: 8px; align-items: center; display: flex; position: absolute; padding-top: 10px;
+            bottom: 5px; width: 100%; left: 0; text-align: center; gap: 8px; align-items: center; display: flex; position: absolute; padding-top: 10px; padding-bottom: env(safe-area-inset-bottom);
             font-size: clamp(0.5rem, 2.3vw, 0.6rem); color: #ffa500;
             letter-spacing: 0.15em; opacity: 0.6; z-index: 9000;  justify-content: center;
         }
@@ -601,7 +599,7 @@ button, a, .sudoku-cell {
 
 @media (max-width: 320px) {
     .footer-credits {
-        gap: 1px; padding-bottom: env(safe-area-inset-bottom);
+        gap: 1px; 
     }
 }
 
@@ -630,15 +628,6 @@ button, a, .sudoku-cell {
     background-color: #ea580c; /* 滑鼠懸停變深色 (orange-600) */
 }
 
-body, #gameContainer {
-display: flex;
-  flex-direction: column;
-  justify-content: center; /* 垂直置中 */
-  align-items: center;     /* 水平置中 */
-  height: 100dvh;
-  /* 確保內容不會因為瀏覽器工具列而被壓縮變形 */
-  min-height: -webkit-fill-available;
-}
 
 /* 1. 遊戲主容器：負責控制整體最大尺寸，防止在 iPad 上過大 */
 #gameContainer:not(.hidden) {
@@ -700,7 +689,6 @@ display: flex;
     <p class="font-bold text-lg text-orange-400">為了最佳遊戲體驗</p>
     <p class="text-sm text-gray-400 mt-1">請將手機轉回直式畫面或鎖定螢幕方向</p>
 </div>
-
     <!-- Dark mode support -->
     <script>
         // Theme management (session-only, no localStorage)
@@ -729,6 +717,32 @@ display: flex;
             }
         }
         
+// =============================================================================
+// 🔊 全局行動端音效解鎖（解決 iOS 靜音或首次點擊無聲問題）
+// =============================================================================
+function unlockMobileAudio() {
+    if (!audioContext) return;
+    
+    const unlockEvents = ['touchstart', 'click', 'keydown'];
+    const unlock = () => {
+        if (audioContext && audioContext.state === 'suspended') {
+            audioContext.resume().then(() => {
+                // 成功解鎖後，移除監聽器，避免浪費效能
+                unlockEvents.forEach(event => document.removeEventListener(event, unlock));
+                console.log('📱 商業音效核心：行動端環境已成功解鎖音訊！');
+            });
+        } else {
+            unlockEvents.forEach(event => document.removeEventListener(event, unlock));
+        }
+    };
+    
+    unlockEvents.forEach(event => document.addEventListener(event, unlock, { passive: true }));
+}
+
+// 建議在你的 window.onload 或 startGame 觸發時呼叫此函數
+// unlockMobileAudio();
+
+
         function toggleTheme() {
             const isDark = document.documentElement.classList.contains('dark');
             
@@ -902,17 +916,17 @@ display: flex;
     <!-- Main Game Container -->
     <div id="gameContainer" class="mx-auto p-4 hidden">
 <!-- Header -->
-<div class="relative flex items-center justify-between w-full mb-3 min-h-[44px]">
+<div class="relative flex items-center justify-between w-full mt-3 mb-1.5 min-h-[30px]">
     <!-- Left: Back Button -->
     <button onclick="showDifficultyModal()" class="text-primary text-2xl min-w-[44px] min-h-[44px] flex items-center justify-center -ml-2 touch-manipulation z-10">←</button>
     
     <!-- Center: Timer and Controls (改為絕對置中) -->
     <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center space-x-2 sm:space-x-3 z-10">
-        <button id="themeToggle" onclick="toggleTheme()" class="bg-primary text-white px-3 py-2 rounded text-sm hover:bg-opacity-90 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation" title="Toggle Dark/Light Mode">
+        <button id="themeToggle" onclick="toggleTheme()" class="bg-gray-200 dark:bg-gray-700 text-white px-3 py-2 rounded text-sm hover:bg-opacity-80 transition-colors min-w-[30px] min-h-[30px] flex items-center justify-center touch-manipulation" title="Toggle Dark/Light Mode">
             <span id="themeIcon">🌙</span>
         </button>
         <div id="timer" class="text-primary text-lg sm:text-xl font-bold min-w-[60px] text-center">00:00</div>
-        <button id="pauseBtn" onclick="togglePause()" class="bg-primary text-white px-3 py-2 rounded text-sm min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation">⏸</button>
+        <button id="pauseBtn" onclick="togglePause()" class="bg-primary text-white px-3 py-2 rounded text-sm min-w-[30px] min-h-[30px] flex items-center justify-center touch-manipulation">⏸</button>
     </div>
     
     <!-- Right: Lives -->
@@ -923,7 +937,7 @@ display: flex;
 </div>
 
         <!-- Sudoku Grid -->
-        <div id="sudokuGrid" class="grid grid-cols-9 gap-0 border-3 border-gridline rounded-lg overflow-hidden mb-2 bg-white dark:bg-gray-800">
+        <div id="sudokuGrid" class="grid grid-cols-9 gap-0 border-3 border-gridline rounded-lg overflow-hidden mb-1 bg-white dark:bg-gray-800">
             <!-- Grid cells will be populated by JavaScript -->
         </div>
 
@@ -1009,15 +1023,6 @@ display: flex;
             </button>
         </div>
 <div class="h-8"></div>
-        <div class="footer-credits">
-            <span>Fan Art ONLY</span>
-            <span class="footer-divider">|</span>
-            <a href="https://www.instagram.com/grafittiii_uru/" target="_blank" class="footer-link">Instagram</a>
-            <span class="footer-divider">|</span>
-            <a href="https://linktr.ee/grafittiii.uru" target="_blank" class="footer-link">My Platfomrs</a>
-        </div>
-
-
     <script>
         // =============================================================================
         // 🛡️ APP PROTECTION & ANTI-TAMPERING MEASURES
@@ -1162,31 +1167,6 @@ display: flex;
             return false;
         }
         
-// =============================================================================
-// 🔊 全局行動端音效解鎖（解決 iOS 靜音或首次點擊無聲問題）
-// =============================================================================
-function unlockMobileAudio() {
-    if (!audioContext) return;
-    
-    const unlockEvents = ['touchstart', 'click', 'keydown'];
-    const unlock = () => {
-        if (audioContext && audioContext.state === 'suspended') {
-            audioContext.resume().then(() => {
-                // 成功解鎖後，移除監聽器，避免浪費效能
-                unlockEvents.forEach(event => document.removeEventListener(event, unlock));
-                console.log('📱 商業音效核心：行動端環境已成功解鎖音訊！');
-            });
-        } else {
-            unlockEvents.forEach(event => document.removeEventListener(event, unlock));
-        }
-    };
-    
-    unlockEvents.forEach(event => document.addEventListener(event, unlock, { passive: true }));
-}
-
-// 建議在你的 window.onload 或 startGame 觸發時呼叫此函數
-// unlockMobileAudio();
-
         // =============================================================================
         // 🎮 GAME STATE - MAIN APPLICATION CODE
         // =============================================================================
@@ -1909,7 +1889,7 @@ function createGrid() {
         
         function hasUniqueSolutionForGeneration(puzzle, size) {
             const maxSolutions = 2; // We only need to find if there's more than 1
-            const maxAttempts = 30000; // Shorter timeout for background generation
+            const maxAttempts = 1500; // Shorter timeout for background generation
             let solutionAttempts = 0;
             
             function solvePuzzle(board, solutionCount) {
@@ -2116,7 +2096,7 @@ function createGrid() {
                 solutionAttempts++;
                 
                 // Timeout protection for very complex puzzles
-                if (solutionAttempts > 50000) {
+                if (solutionAttempts > 1500) {
                     console.warn(`   ⚠️ Solution checker timeout after ${solutionAttempts} attempts`);
                     recursionDepth--;
                     return 1; // Assume unique to avoid infinite loops
@@ -2314,7 +2294,7 @@ function isValidMoveForSize(board, row, col, num, size) {
                     // Continue with next puzzle even if one fails
                     generatePuzzlesSequentially(puzzleQueue, index + 1);
                 }
-            }, 100); // Small delay between puzzles
+            }, 300); // Small delay between puzzles
         }
         
         function getPuzzleFromPool(difficulty) {
@@ -4577,6 +4557,17 @@ if (modalContentContainer) {
             });
         }
         
+// 💡 新增一個輔助函式：將當前時間轉換為「年月日時分」數字組合 (例如: 202607191630)
+        function getFormattedTimestamp() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0'); // 月份從 0 開始
+            const date = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `${year}${month}${date}${hours}${minutes}`;
+        }
+
         // Download victory card - save directly to phone album
         async function downloadVictoryCard() {
             console.log('💾 === VICTORY CARD SAVE STARTED ===');
@@ -4629,6 +4620,9 @@ if (modalContentContainer) {
                     
                     console.log('✅ Blob created:', blob.size, 'bytes');
                     
+                    // 💡 在需要命名時獲取格式化好的時間字串
+                    const timeStr = getFormattedTimestamp();
+                    
                     if (isMobile) {
                         console.log('📱 Mobile save process starting...');
                         
@@ -4640,9 +4634,10 @@ if (modalContentContainer) {
                             console.log('🔄 Trying Web Share API...');
                             
                             try {
-                                const file = new File([blob], `mascot-sudoku-victory-${Date.now()}.png`, { 
+                                // 🌟 修正第 1 處：手機分享選單中的檔名
+                                const file = new File([blob], `mascot-sudoku-victory-${window.currentVictoryData.difficulty}-${timeStr}.png`, { 
                                     type: 'image/png',
-                                    lastModified: Date.now()
+                                    lastModified: Date.now() // 這裡保留 Date.now() 是對的，因為計時屬性需要毫秒數
                                 });
                                 
                                 navigator.share({
@@ -4676,7 +4671,8 @@ if (modalContentContainer) {
                         const url = URL.createObjectURL(blob);
                         const link = document.createElement('a');
                         link.href = url;
-                        link.download = `mascot-sudoku-victory-${window.currentVictoryData.difficulty}-${Date.now()}.png`;
+                        // 🌟 修正第 2 處：電腦版傳統下載的檔名
+                        link.download = `mascot-sudoku-victory-${window.currentVictoryData.difficulty}-${timeStr}.png`;
                         link.style.display = 'none';
                         
                         document.body.appendChild(link);
@@ -4718,12 +4714,16 @@ if (modalContentContainer) {
             // Try different approaches based on device capabilities
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
+            // 💡 獲取格式化好的時間字串
+            const timeStr = getFormattedTimestamp();
+
             if (isMobile) {
                 // Mobile approach: create download link with user interaction
                 try {
                     const link = document.createElement('a');
                     link.href = url;
-                    link.download = `mascot-sudoku-victory-${Date.now()}.png`;
+                    // 🌟 修正第 3 處：手機後備下載方法的檔名
+                    link.download = `mascot-sudoku-victory-${timeStr}.png`;
                     link.style.display = 'none';
                     
                     // Add to DOM and trigger click
@@ -4749,7 +4749,8 @@ if (modalContentContainer) {
                 // Desktop fallback
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `mascot-sudoku-victory-${Date.now()}.png`;
+                // 🌟 修正第 4 處（如果您電腦版後備也會用到）：電腦後備下載方法的檔名
+                link.download = `mascot-sudoku-victory-${timeStr}.png`;
                 link.style.display = 'none';
                 
                 document.body.appendChild(link);
@@ -6139,7 +6140,7 @@ function toggleFont() {
     }
 }
 
-=============================================================================
+// =============================================================================
 // 📱 商業級行動端瀏覽器點擊與手勢優化
 // =============================================================================
 document.addEventListener('DOMContentLoaded', () => {
