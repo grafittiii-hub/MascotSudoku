@@ -635,12 +635,23 @@ img, button, .sudoku-cell {
 
 /* 1. 遊戲主容器：負責控制整體最大尺寸，防止在 iPad 上過大 */
 #gameContainer:not(.hidden) {
-    width: min(95vw, calc(100dvh - 220px)) !important; /* 寬度由螢幕寬高動態決定 */
-    max-width: 480px !important;
-    margin: 0 auto !important;
+    /* 1. 核心修正：改用 fixed 定位，脫離 body flex 的干擾 */
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    /* 2. 讓高度貼合內容，以便讓 margin: auto 可以完美分配上下剩餘空間 */
+    height: fit-content !important;
+    max-height: 100dvh !important;
+    width: min(95vw, calc(100dvh - 220px)) !important;
+    max-width: 480px !important; 
+    /* 4. 在 fixed 四邊為 0 的環境下，margin: auto 會達成完美的螢幕正中央對齊 */
+    margin: auto !important; 
+    /* 5. 內層維持 Flex 排版 */
     display: flex !important;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
     padding-top: env(safe-area-inset-top, 10px);
     padding-bottom: env(safe-area-inset-bottom, 10px);
     box-sizing: border-box;
