@@ -637,10 +637,10 @@ img, button, .sudoku-cell {
 #gameContainer:not(.hidden) {
     width: min(95vw, calc(100dvh - 220px)) !important; /* 寬度由螢幕寬高動態決定 */
     max-width: 480px !important;
-    margin: auto !important;
+    margin: 0 auto !important;
     display: flex !important;
     flex-direction: column;
-    justify-content: center; /* 內部元素上下置中 */
+    justify-content: flex-start;
     padding-top: env(safe-area-inset-top, 10px);
     padding-bottom: env(safe-area-inset-bottom, 10px);
     box-sizing: border-box;
