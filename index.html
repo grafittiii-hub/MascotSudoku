@@ -203,8 +203,8 @@ outline: 3px solid #00d2ff !important; /* 使用 outline 代替 border，可完�
     display: block;
 }
         
-        /* Number button container improvements */
-        .number-btn {
+/* Number button container improvements */
+.number-btn {
             min-width: 0; /* Allow buttons to shrink below content width */
             max-width: 100%; /* Prevent overflow */
             touch-action: none;
@@ -217,7 +217,15 @@ outline: 3px solid #00d2ff !important; /* 使用 outline 代替 border，可完�
     background-color: #e39f0e !important; /* 你的 primary 橘色 */
     border-color: #ffffff !important;
 }
-
+/* 只有在支援滑鼠懸停的裝置上才套用 hover 效果 */
+@media (hover: hover) {
+    .number-btn:hover {
+        background-color: #e39f0e; 
+    }
+    .dark .number-btn:hover {
+        background-color: #e39f0e !important;
+    }
+}
 img, button, .sudoku-cell {
     -webkit-user-drag: none;    /* Webkit 核心瀏覽器 (Chrome/Safari) */
     user-drag: none;
